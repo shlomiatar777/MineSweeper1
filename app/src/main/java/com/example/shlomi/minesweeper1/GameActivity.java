@@ -3,8 +3,14 @@ package com.example.shlomi.minesweeper1;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,101 +37,55 @@ public class GameActivity extends AppCompatActivity {
     boolean isFlagUI=false;
     TextView bombs;
     int numOfFlags=0;
-    int rows, cols,  bombsNum, leveltType;
+    int rows, cols,  bombsNum, levelType;
+    private int countSeconds= 0 ;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         rows= getIntent().getIntExtra("rows",1);
         cols = getIntent().getIntExtra("cols",1);
         bombsNum = getIntent().getIntExtra("bombsNum",1);
-        leveltType= getIntent().getIntExtra("levelName",1);
+        levelType= getIntent().getIntExtra("levelName",-1);
         theBoard = new Board(rows,cols,bombsNum);
-        LinearLayout llGame =  new LinearLayout(this);
-        llGame.setOrientation(LinearLayout.VERTICAL);
-        GridLayout glTblGame = new GridLayout(this);
-        /*TextView timeLbl = new TextView(this);
-        timeLbl.setText("Time :");
-        timeLbl.setTextSize(24);*/
-        LinearLayout llTop= new LinearLayout(this);
-        LinearLayout llCenter= new LinearLayout(this);
-        LinearLayout llBottom= new LinearLayout(this);
-        llTop.setOrientation(LinearLayout.HORIZONTAL);
-        timer=  new TextView(this);
-        timer.setTextSize(24);
-        //llGame.addView(timeLbl);
-        llTop.addView(timer);
-        setContentView(llGame);
-        runThread();
-        bombs = new TextView(this);
-        bombs.setTextSize(24);
-        bombs.setText("bombs: "+ theBoard.getBombs());
-        // llGame.addView(bombs);
+        theBoard.initLogicBoard();
+
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        bombs.setPadding(350,0,0,0);
-        llTop.addView(bombs);
+
+        LinearLayout llGame =  new LinearLayout(this);
+        llGame.setOrientation(LinearLayout.VERTICAL);
+        llGame.setGravity(Gravity.CENTER_HORIZONTAL);
+        setContentView(llGame);
+        Drawable backGround = ContextCompat.getDrawable(this,R.drawable.parket);
+        llGame.setBackgroundDrawable(backGround);
+
+        LinearLayout llTop= new LinearLayout(this);
+        makeParamsGame(llTop,height,width);
         llGame.addView(llTop);
 
-        theBoard.initLogicBoard();
-        UI_Board =initTileBoard(rows,cols);
-        UI_Board.setPadding(0,50,0,0);
+        UI_Board =initTileBoard(rows,cols,height,width);
+        UI_Board.setPadding(0,height/20,0,0);
         UI_Board.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-        llCenter.setGravity(Gravity.CENTER_HORIZONTAL);
         llGame.addView(UI_Board);
-        llGame.addView(llCenter);
-        Button flags = new Button(this);
-        flags.setTextSize(24);
-        flags.setText("Flags");
-        flags.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-        flags.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isFlagUI=true;
-            }
-        });
-        // flags.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-        Button dicover = new Button(this);
-        dicover.setTextSize(24);
-        dicover.setText("Discover");
-        dicover.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isFlagUI=false;
-            }
-        });
-        Button quit = new Button(this);
-        quit.setTextSize(24);
-        quit.setText("Quit");
-        quit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                returnToMenu();
-            }
-        });
-        llBottom.setOrientation(LinearLayout.HORIZONTAL);
-        llBottom.setPadding(0,100,0,0);
-        quit.setPadding(200,0,0,0);
-        llBottom.addView(flags);
-        llBottom.addView(dicover);
-        llBottom.addView(quit);
+
+        LinearLayout llBottom= new LinearLayout(this);
+        makeOptionsGame(llBottom,height);
         llGame.addView(llBottom);
-
-
-
-
     }
 
 
-    private void runThread() {
+    private void updateTime() {
         new Thread(){
 
-            private int countSeconds= 0 ;
-            public void run() {
 
+            public void run() {
                 while (true) {
                     try {
                         runOnUiThread(new Runnable() {
@@ -144,65 +104,148 @@ public class GameActivity extends AppCompatActivity {
         }.start();
     }
 
-    public TableLayout initTileBoard (int row, int col){
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int with =size.x;
-        int high =size.y;
+    public TableLayout initTileBoard (int row, int col,int height, int width){
+
         final TableLayout tileBoard= new TableLayout(this);
         for (int i=0; i<row; i++){
             TableRow allRow= new TableRow(this);
             for ( int j=0 ; j<col; j++){
                 Button index=new Button(this);
                 index.setId(i*col+j);
-                //index.setText(""+theBoard.getAllTiles()[i][j].getType());
+                final int heightBtn = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.21*height/row) , getResources().getDisplayMetrics());
+                final int widthBtn = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.33*width/col), getResources().getDisplayMetrics());
+                index.setTextSize(heightBtn/7);
+                Drawable fullTile = ContextCompat.getDrawable(this, R.drawable.full);
+                Bitmap b = ((BitmapDrawable)fullTile).getBitmap();
+                Bitmap bResaize = Bitmap.createScaledBitmap(b,heightBtn,widthBtn,false);
+                Drawable d = new BitmapDrawable(getResources(),bResaize);
+                index.setBackgroundDrawable(d);
+                final Drawable old = index.getBackground();
                 index.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //   int resoult =-1;
                         int resoult =theBoard.makeStep(v.getId(),isFlagUI);
                         if (isFlagUI){
-                            makeFlag(v);
+                            makeFlag(v,heightBtn,widthBtn,old);
                         }
                         else
-                            makeDicover(v, resoult);
+                            makeDicover(v, resoult,heightBtn,widthBtn, old);
                     }
                 });
-                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.021*high) , getResources().getDisplayMetrics());
-                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.033*with), getResources().getDisplayMetrics());
-                index.setLayoutParams(new TableRow.LayoutParams(width, height));
+
+
+                index.setLayoutParams(new TableRow.LayoutParams(widthBtn, heightBtn));
+
                 allRow.addView(index);
+
+               // ((Button) ((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setBackgroundDrawable(d);
             }
+
             tileBoard.addView(allRow);
         }
         return  tileBoard;
     }
 
-    public void makeFlag(View v){
+    public void makeParamsGame(LinearLayout llTop,int height, int width){
+        llTop.setOrientation(LinearLayout.HORIZONTAL);
+        llTop.setGravity(Gravity.CENTER_HORIZONTAL);
+        timer=  new TextView(this);
+        timer.setTextSize(height/50);
+        timer.setTextColor(Color.RED);
+        timer.setBackgroundColor(Color.BLACK);
+        Typeface face = Typeface.createFromAsset(getAssets(),"fonts/digital-7.ttf");
+        timer.setTypeface(face);
+        llTop.addView(timer);
+        updateTime();
+        bombs = new TextView(this);
+        bombs.setTextSize(height/50);
+        bombs.setTextColor(Color.RED);
+        bombs.setBackgroundColor(Color.BLACK);
+        bombs.setTypeface(face);
+        bombs.setText("bombs: "+ theBoard.getBombs());
+        bombs.setPadding(width/8,0,0,0);
+        llTop.addView(bombs);
+    }
+
+    public void  makeOptionsGame(LinearLayout llBottom,int height){
+        llBottom.setOrientation(LinearLayout.HORIZONTAL);
+        llBottom.setGravity(Gravity.CENTER_HORIZONTAL);
+        llBottom.setPadding(0,height/20,0,0);
+
+        Button flags = new Button(this);
+        flags.setTextSize(height/70);
+        flags.setText("Flags");
+        flags.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFlagUI=true;
+            }
+        });
+        Button dicover = new Button(this);
+        dicover.setTextSize(height/70);
+        dicover.setText("Discover");
+        dicover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFlagUI=false;
+            }
+        });
+        Button quit = new Button(this);
+        quit.setTextSize(height/70);
+        quit.setText("Quit");
+        quit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                returnToMenu();
+            }
+        });
+
+        llBottom.addView(flags);
+        llBottom.addView(dicover);
+        llBottom.addView(quit);
+    }
+
+    public void makeFlag(View v , int height, int width,Drawable old){
         int indexY= v.getId()%cols;
         int indexX = v.getId()/cols;
         if (theBoard.getAllTiles()[indexX][indexY].isCover()) {
-            if (theBoard.getAllTiles()[indexX][indexY].isFlag())
-                ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).setText("F");
+            if (theBoard.getAllTiles()[indexX][indexY].isFlag()) {
+               // Drawable old = ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).getBackground();
+               Drawable flag = ContextCompat.getDrawable(this, R.drawable.flag);
+                Bitmap b = ((BitmapDrawable)flag).getBitmap();
+                Bitmap bResaize = Bitmap.createScaledBitmap(b,height,width,false);
+                Drawable d = new BitmapDrawable(getResources(),bResaize);
+                ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).setBackgroundDrawable(d);
+            }
             else
-                ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).setText("");
+                ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).setBackground(old);
 
-            bombs.setText("Bombs: "+(theBoard.getBombs()-theBoard.getNumOfFlagsLogic()));
+            bombs.setText("Bombs: "+(theBoard.getBombs()+theBoard.getNumOfFlagsLogic()));
         }
     }
 
-    public void makeDicover(View v, int resoult){
+
+    public void makeDicover(View v, int resoult,int heightBtn, int widthBtn,Drawable old){
         if (resoult==1) {
             final Intent intent = new Intent(this,WinnerActivity.class);
             final  int scene=2;
+            boolean isBestScore=false;
+            SharedPreferences settings =  getSharedPreferences("allBestScores",0);
+            SharedPreferences.Editor editor = settings.edit();
+            int bestScore= settings.getInt("LevelName "+levelType,0);
+            if (bestScore == 0 || bestScore > countSeconds) {
+                bestScore = countSeconds;
+                isBestScore=true;
+            }
+            intent.putExtra("bestScore",isBestScore);
+            editor.putInt("LevelName "+levelType,bestScore);
+            editor.commit();
+
             startActivityForResult(intent,scene);
         }
         else if (resoult==-1) {
             final Intent intent = new Intent(this, LoserActivity.class);
             final int scene = 2;
-            SharedPreferences settings =  getSharedPreferences("sllBestScores",0);
-            SharedPreferences.Editor editor = settings.edit();
         //    editor.putInt()
             startActivityForResult(intent, scene);
         }
@@ -210,10 +253,13 @@ public class GameActivity extends AppCompatActivity {
             for (int i = 0 ; i < theBoard.getRows() ; i ++){
                 for (int j = 0 ; j < theBoard.getCols() ; j ++){
                     if (!theBoard.getAllTiles()[i][j].isCover()){
-                        if (theBoard.getAllTiles()[i][j].getType()==10) {
+                        if (theBoard.getAllTiles()[i][j].getType()==10)
                             ((Button) ((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setText("X");
+                        else {
+                            updateNumOfBombs(i,j,heightBtn,widthBtn);
+                          //  ((Button)((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setText("" + theBoard.getAllTiles()[i][j].getType());
+                           // ((Button)((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setBackground(old);
                         }
-                        else ((Button) ((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setText(""+theBoard.getAllTiles()[i][j].getType());
                     }
                 }
             }
@@ -239,6 +285,32 @@ public class GameActivity extends AppCompatActivity {
         AlertDialog alert = quitDialog.create();
         alert.show();
     }
+    public void updateNumOfBombs(int x,int y, int heightBtn, int widthBtn){
+        Drawable emptyTile = ContextCompat.getDrawable(this, R.drawable.empty);
+        Bitmap b = ((BitmapDrawable)emptyTile).getBitmap();
+        Bitmap bResaize = Bitmap.createScaledBitmap(b,heightBtn,widthBtn,false);
+        Drawable d = new BitmapDrawable(getResources(),bResaize);
+        ((Button) ((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setBackgroundDrawable(d);
+        int type= theBoard.getAllTiles()[x][y].getType();
+        if (type==1)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.BLUE);
+        if (type==2)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.rgb(20,100,40));
+        if (type==3)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.RED);
+        if (type==4)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.MAGENTA);
+        if (type==5)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.CYAN);
+        if (type==6)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.YELLOW);
+        if (type==7)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.GRAY);
+        if (type==8)
+            ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.rgb(170,170,40) );
+        if(type!=0)
+         ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setText("" + theBoard.getAllTiles()[x][y].getType());
+    }
 
     @Override
     public void onRestart(){
@@ -246,8 +318,5 @@ public class GameActivity extends AppCompatActivity {
         finish();
         startActivity(getIntent());
     }
-
-
-
 }
 

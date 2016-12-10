@@ -2,8 +2,13 @@ package com.example.shlomi.minesweeper1;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,43 +26,45 @@ public class ChooseLevelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_level);
+
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+
         LinearLayout ll =(LinearLayout) findViewById(R.id.mainLayout);
-
-
-
+        ll.setGravity(Gravity.CENTER_HORIZONTAL);
+        Drawable image = ContextCompat.getDrawable(this,R.drawable.parket);
+        ll.setBackgroundDrawable(image);
 
         TextView title = new TextView(this);
-        title.setText("Shlomi");
-        title.setTextSize(36);
+        title.setText("Mine Sweeper!");
+        title.setTextSize(height/50);
+        title.setTextColor(Color.WHITE);
         title.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-        ll.setGravity(Gravity.CENTER_HORIZONTAL);
         ll.addView(title);
-        final LinearLayout llEasy=makeLevel("Easy");
-        ll.addView(llEasy);
-        LinearLayout llMedium=makeLevel("Medium");
-        ll.addView(llMedium);
-        LinearLayout llHard=makeLevel("Hard");
-        ll.addView(llHard);
+
+        LinearLayout llChooseLvl = new LinearLayout(this);
+        llChooseLvl.setOrientation(LinearLayout.HORIZONTAL);
+        llChooseLvl.setPadding(0,height/6,0,0);
+        LinearLayout llScores = new LinearLayout(this);
+        makeScoreLayOut(llScores,height/70);
+;       chooseLevelByGroupBtn(height/70);
+        llChooseLvl.addView(rg);
+        llChooseLvl.addView(llScores);
+        ll.addView(llChooseLvl);
+
+        LinearLayout llPlay =new LinearLayout(this);
+        llPlay.setGravity(Gravity.CENTER_HORIZONTAL);
+        llPlay.setPadding(0,height/5,0,0);
         Button play = new Button(this);
         play.setText("Play");
-        play.setTextSize(30);
+        play.setTextSize(height/60);
         final Intent intent = new Intent(this, GameActivity.class);
         final  int scene=1;
-        RadioButton rbEasy = new RadioButton(this);
-        rbEasy.setTextSize(24);
-        rbEasy.setText("Easy");
-        RadioButton rbMedium = new RadioButton(this);
-        rbMedium.setTextSize(24);
-        rbMedium.setText("Medium");
-        RadioButton rbHard = new RadioButton(this);
-        rbHard.setTextSize(24);
-        rbHard.setText("Hard");
-        rg = new RadioGroup(this);
-        rg. addView(rbEasy);
-        rg.addView(rbMedium);
-        rg.addView((rbHard));
-        rbEasy.setChecked(true);
-        ll.addView(rg);
         play.setOnClickListener(new View.OnClickListener(){
             @Override
 
@@ -65,18 +72,18 @@ public class ChooseLevelActivity extends AppCompatActivity {
                 int rows,cols,bombs;
                 int index = rg.indexOfChild(findViewById(rg.getCheckedRadioButtonId()));
                 if (index==0){
-                    rows =5;
-                    cols= 5;
+                    rows =10;
+                    cols= 10;
                     bombs = 5;
                 }
                 else if (index==1){
-                    rows=7;
-                    cols=7;
-                    bombs=7;
+                    rows=10;
+                    cols=10;
+                    bombs=10;
                 }
                 else {
-                    rows = 10;
-                    cols= 10;
+                    rows = 5;
+                    cols= 5;
                     bombs=10;
                 }
                 intent.putExtra("rows",rows);
@@ -86,25 +93,57 @@ public class ChooseLevelActivity extends AppCompatActivity {
                 startActivityForResult(intent,scene);
             }
         });
-        ll.addView(play);
-        SharedPreferences settings =  getSharedPreferences("sllBestScores",0);
+        play.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
+        llPlay.addView(play);
+
+       ll.addView(llPlay);
+    }
+
+    public void makeScoreLayOut(LinearLayout llScores,int size){
+
+        SharedPreferences settings =  getSharedPreferences("allBestScores",0);
         SharedPreferences.Editor editor = settings.edit();
+        int easyScore = settings.getInt("LevelName "+0,0);
+        int mediumScore =  settings.getInt("LevelName "+1,0);
+        int hardScore =  settings.getInt("LevelName "+2,0);
 
+        llScores.setOrientation(LinearLayout.VERTICAL);
+        TextView easyScoreLbl= new TextView(this);
+        easyScoreLbl.setTextSize(size);
+        easyScoreLbl.setText("      Score: "+ easyScore );
+        easyScoreLbl.setTextColor(Color.WHITE);
+        TextView mediumScoreLbl= new TextView(this);
+        mediumScoreLbl.setTextSize(size);
+        mediumScoreLbl.setText("      Score: "+ mediumScore );
+        mediumScoreLbl.setTextColor(Color.WHITE);
+        TextView hardScoreLbl= new TextView(this);
+        hardScoreLbl.setTextSize(size);
+        hardScoreLbl.setText("      Score: "+ hardScore );
+        hardScoreLbl.setTextColor(Color.WHITE);
+        llScores.addView(easyScoreLbl);
+        llScores.addView(mediumScoreLbl);
+        llScores.addView(hardScoreLbl);
     }
 
-    public LinearLayout makeLevel(String levelName){
-        LinearLayout temp = new LinearLayout(this);
-        temp.setOrientation(LinearLayout.HORIZONTAL);
-        RadioButton rb = new RadioButton(this);
-        TextView LabelLevel= new TextView(this);
-        LabelLevel.setText(levelName);
-        LabelLevel.setTextSize(30);
-        TextView scoreLable= new TextView(this);
-        scoreLable.setText("      Score: "+ 0);
-        scoreLable.setTextSize(24);
-        temp.addView(rb);
-        temp.addView(LabelLevel);
-        temp.addView(scoreLable);
-        return temp;
+     public void chooseLevelByGroupBtn(int size){
+         RadioButton rbEasy = makeRadionBtnOption(size, "Easy");
+         rbEasy.setTextColor(Color.WHITE);
+         RadioButton rbMedium = makeRadionBtnOption(size, "Medium");
+         rbMedium.setTextColor(Color.WHITE);
+         RadioButton rbHard = makeRadionBtnOption(size, "Hard");
+         rbHard.setTextColor(Color.WHITE);
+         rg = new RadioGroup(this);
+         rg. addView(rbEasy);
+         rg.addView(rbMedium);
+         rg.addView((rbHard));
+         rbEasy.setChecked(true); 
+     }
+    
+    public RadioButton makeRadionBtnOption(int size, String lbl){
+        RadioButton rbTemp = new RadioButton(this);
+        rbTemp.setTextSize(size);
+        rbTemp.setText(lbl);
+        return rbTemp;
     }
+ 
 }
