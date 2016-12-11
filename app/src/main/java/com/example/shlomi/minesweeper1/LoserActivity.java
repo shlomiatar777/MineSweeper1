@@ -26,14 +26,17 @@ public class LoserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loser);
+
+        //  screen size parameters
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        final Intent intentMenu = new Intent(this, ChooseLevelActivity.class);
-        final Intent intentReplay = new Intent(this, ChooseLevelActivity.class);
 
+        final Intent intentMenu = new Intent(this, ChooseLevelActivity.class);
+
+        //  main LayOut of this Activity
         LinearLayout llMain = new LinearLayout(this);
         llMain.setOrientation(LinearLayout.VERTICAL);
         llMain.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -49,6 +52,7 @@ public class LoserActivity extends AppCompatActivity {
         Drawable d = new BitmapDrawable(getResources(),bResaize);
         smily.setBackgroundDrawable(d);
         llMain.addView(smily);
+
         TextView loseLbl = new TextView(this);
         loseLbl.setTextSize(48);
         loseLbl.setTextColor(Color.WHITE);

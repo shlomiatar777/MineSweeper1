@@ -25,15 +25,18 @@ public class WinnerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_winner);
+
+        //  screen size parameters
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
+
         final Intent intentMenu=new Intent(this, ChooseLevelActivity.class);
-        final Intent intentReplay=new Intent(this, ChooseLevelActivity.class);
         boolean isBestScore= getIntent().getBooleanExtra("bestScore",false);
 
+        //  main LayOut of this Activity
         LinearLayout llMain = new LinearLayout(this);
         llMain.setOrientation(LinearLayout.VERTICAL);
         llMain.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -49,6 +52,7 @@ public class WinnerActivity extends AppCompatActivity {
         Drawable d = new BitmapDrawable(getResources(),bResaize);
         smily.setBackgroundDrawable(d);
         llMain.addView(smily);
+
         TextView winLbl = new TextView(this);
         winLbl.setTextSize(48);
         winLbl.setTextColor(Color.WHITE);
@@ -58,6 +62,7 @@ public class WinnerActivity extends AppCompatActivity {
             winLbl.setText("You win!");
         winLbl.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         llMain.addView(winLbl);
+
         LinearLayout llBottom = new LinearLayout(this);
         llBottom.setOrientation(LinearLayout.HORIZONTAL);
         llBottom.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));

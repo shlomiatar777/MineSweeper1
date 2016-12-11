@@ -30,20 +30,17 @@ import Logic.Board;
 
 public class GameActivity extends AppCompatActivity {
 
-    //private GoogleApiClient client;
-    private TextView timer;
+    private TextView timer, bombs;
     Board theBoard;
     TableLayout UI_Board;
     boolean isFlagUI=false;
-    TextView bombs;
-    int numOfFlags=0;
     int rows, cols,  bombsNum, levelType;
     private int countSeconds= 0 ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+// load parameters from other activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         rows= getIntent().getIntExtra("rows",1);
@@ -53,12 +50,14 @@ public class GameActivity extends AppCompatActivity {
         theBoard = new Board(rows,cols,bombsNum);
         theBoard.initLogicBoard();
 
+//  screen size parameters
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
 
+//main LayOut of this Activity
         LinearLayout llGame =  new LinearLayout(this);
         llGame.setOrientation(LinearLayout.VERTICAL);
         llGame.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -69,7 +68,7 @@ public class GameActivity extends AppCompatActivity {
         LinearLayout llTop= new LinearLayout(this);
         makeParamsGame(llTop,height,width);
         llGame.addView(llTop);
-
+// make the tiles board
         UI_Board =initTileBoard(rows,cols,height,width);
         UI_Board.setPadding(0,height/20,0,0);
         UI_Board.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -80,7 +79,7 @@ public class GameActivity extends AppCompatActivity {
         llGame.addView(llBottom);
     }
 
-
+//update the time's TextView
     private void updateTime() {
         new Thread(){
 
@@ -104,6 +103,7 @@ public class GameActivity extends AppCompatActivity {
         }.start();
     }
 
+    // initialize the board of Tiles
     public TableLayout initTileBoard (int row, int col,int height, int width){
 
         final TableLayout tileBoard= new TableLayout(this);
@@ -115,37 +115,37 @@ public class GameActivity extends AppCompatActivity {
                 final int heightBtn = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.21*height/row) , getResources().getDisplayMetrics());
                 final int widthBtn = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,(int) (0.33*width/col), getResources().getDisplayMetrics());
                 index.setTextSize(heightBtn/7);
+
+                //Resize the image to fit in the Button size
                 Drawable fullTile = ContextCompat.getDrawable(this, R.drawable.full);
                 Bitmap b = ((BitmapDrawable)fullTile).getBitmap();
                 Bitmap bResaize = Bitmap.createScaledBitmap(b,heightBtn,widthBtn,false);
                 Drawable d = new BitmapDrawable(getResources(),bResaize);
                 index.setBackgroundDrawable(d);
+
+                //keep the unCoverd backgrond in case i press on flag and then unflag
                 final Drawable old = index.getBackground();
+
                 index.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //get the current status of the game (1: win , -1: lose , 0: still play)
                         int resoult =theBoard.makeStep(v.getId(),isFlagUI);
-                        if (isFlagUI){
+                        if (isFlagUI)
                             makeFlag(v,heightBtn,widthBtn,old);
-                        }
                         else
                             makeDicover(v, resoult,heightBtn,widthBtn, old);
                     }
                 });
-
-
                 index.setLayoutParams(new TableRow.LayoutParams(widthBtn, heightBtn));
-
                 allRow.addView(index);
-
-               // ((Button) ((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setBackgroundDrawable(d);
             }
 
             tileBoard.addView(allRow);
         }
         return  tileBoard;
     }
-
+// show the current time pass and the num of optional bombs
     public void makeParamsGame(LinearLayout llTop,int height, int width){
         llTop.setOrientation(LinearLayout.HORIZONTAL);
         llTop.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -167,6 +167,7 @@ public class GameActivity extends AppCompatActivity {
         llTop.addView(bombs);
     }
 
+    //the options of the game (discover Tile , make a flag or quit)
     public void  makeOptionsGame(LinearLayout llBottom,int height){
         llBottom.setOrientation(LinearLayout.HORIZONTAL);
         llBottom.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -205,12 +206,12 @@ public class GameActivity extends AppCompatActivity {
         llBottom.addView(quit);
     }
 
+    //make a flag in case it valid step
     public void makeFlag(View v , int height, int width,Drawable old){
         int indexY= v.getId()%cols;
         int indexX = v.getId()/cols;
         if (theBoard.getAllTiles()[indexX][indexY].isCover()) {
             if (theBoard.getAllTiles()[indexX][indexY].isFlag()) {
-               // Drawable old = ((Button) ((TableRow) UI_Board.getChildAt(indexX)).getChildAt(indexY)).getBackground();
                Drawable flag = ContextCompat.getDrawable(this, R.drawable.flag);
                 Bitmap b = ((BitmapDrawable)flag).getBitmap();
                 Bitmap bResaize = Bitmap.createScaledBitmap(b,height,width,false);
@@ -225,11 +226,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
+    //discover a Tile in case it valid step and check the current status of game (1: win , -1: lose , 0: still play)
     public void makeDicover(View v, int resoult,int heightBtn, int widthBtn,Drawable old){
         if (resoult==1) {
             final Intent intent = new Intent(this,WinnerActivity.class);
             final  int scene=2;
             boolean isBestScore=false;
+
+            // save the best score
             SharedPreferences settings =  getSharedPreferences("allBestScores",0);
             SharedPreferences.Editor editor = settings.edit();
             int bestScore= settings.getInt("LevelName "+levelType,0);
@@ -246,7 +250,6 @@ public class GameActivity extends AppCompatActivity {
         else if (resoult==-1) {
             final Intent intent = new Intent(this, LoserActivity.class);
             final int scene = 2;
-        //    editor.putInt()
             startActivityForResult(intent, scene);
         }
         else{
@@ -255,17 +258,15 @@ public class GameActivity extends AppCompatActivity {
                     if (!theBoard.getAllTiles()[i][j].isCover()){
                         if (theBoard.getAllTiles()[i][j].getType()==10)
                             ((Button) ((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setText("X");
-                        else {
+                        else
                             updateNumOfBombs(i,j,heightBtn,widthBtn);
-                          //  ((Button)((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setText("" + theBoard.getAllTiles()[i][j].getType());
-                           // ((Button)((TableRow) UI_Board.getChildAt(i)).getChildAt(j)).setBackground(old);
-                        }
                     }
                 }
             }
         }
     }
 
+    //the quit option
     public  void returnToMenu(){
         AlertDialog.Builder quitDialog = new AlertDialog.Builder(GameActivity.this);
         quitDialog.setMessage("Are you sure you want return to menu?");
@@ -285,12 +286,14 @@ public class GameActivity extends AppCompatActivity {
         AlertDialog alert = quitDialog.create();
         alert.show();
     }
+    //update the type and color of each discover Tale
     public void updateNumOfBombs(int x,int y, int heightBtn, int widthBtn){
         Drawable emptyTile = ContextCompat.getDrawable(this, R.drawable.empty);
         Bitmap b = ((BitmapDrawable)emptyTile).getBitmap();
         Bitmap bResaize = Bitmap.createScaledBitmap(b,heightBtn,widthBtn,false);
         Drawable d = new BitmapDrawable(getResources(),bResaize);
         ((Button) ((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setBackgroundDrawable(d);
+
         int type= theBoard.getAllTiles()[x][y].getType();
         if (type==1)
             ((Button)((TableRow) UI_Board.getChildAt(x)).getChildAt(y)).setTextColor(Color.BLUE);

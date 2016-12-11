@@ -26,15 +26,17 @@ public class ChooseLevelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_level);
+        final Intent intent = new Intent(this, GameActivity.class);
+        final  int scene=1;
 
-
+    //  screen size parameters
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
 
-
+    // the main layout of this activity
         LinearLayout ll =(LinearLayout) findViewById(R.id.mainLayout);
         ll.setGravity(Gravity.CENTER_HORIZONTAL);
         Drawable image = ContextCompat.getDrawable(this,R.drawable.parket);
@@ -50,6 +52,7 @@ public class ChooseLevelActivity extends AppCompatActivity {
         LinearLayout llChooseLvl = new LinearLayout(this);
         llChooseLvl.setOrientation(LinearLayout.HORIZONTAL);
         llChooseLvl.setPadding(0,height/6,0,0);
+
         LinearLayout llScores = new LinearLayout(this);
         makeScoreLayOut(llScores,height/70);
 ;       chooseLevelByGroupBtn(height/70);
@@ -60,11 +63,10 @@ public class ChooseLevelActivity extends AppCompatActivity {
         LinearLayout llPlay =new LinearLayout(this);
         llPlay.setGravity(Gravity.CENTER_HORIZONTAL);
         llPlay.setPadding(0,height/5,0,0);
+
         Button play = new Button(this);
         play.setText("Play");
         play.setTextSize(height/60);
-        final Intent intent = new Intent(this, GameActivity.class);
-        final  int scene=1;
         play.setOnClickListener(new View.OnClickListener(){
             @Override
 
@@ -99,6 +101,7 @@ public class ChooseLevelActivity extends AppCompatActivity {
        ll.addView(llPlay);
     }
 
+    // load best score for each level to a Layout
     public void makeScoreLayOut(LinearLayout llScores,int size){
 
         SharedPreferences settings =  getSharedPreferences("allBestScores",0);
@@ -125,6 +128,7 @@ public class ChooseLevelActivity extends AppCompatActivity {
         llScores.addView(hardScoreLbl);
     }
 
+    // make RadioGroup with all levels
      public void chooseLevelByGroupBtn(int size){
          RadioButton rbEasy = makeRadionBtnOption(size, "Easy");
          rbEasy.setTextColor(Color.WHITE);
@@ -138,7 +142,8 @@ public class ChooseLevelActivity extends AppCompatActivity {
          rg.addView((rbHard));
          rbEasy.setChecked(true); 
      }
-    
+
+    // make RadioButton for each level
     public RadioButton makeRadionBtnOption(int size, String lbl){
         RadioButton rbTemp = new RadioButton(this);
         rbTemp.setTextSize(size);

@@ -56,7 +56,7 @@ public class Board {
         this.numOfFlagsLogic = numOfFlagsLogic;
     }
 
-
+//init logic board (each Tile represent by it num of bomb around it or if it bombm by it self)
     public void initLogicBoard() {
         int numOfBombs = 0;
         while (numOfBombs<bombs) {
@@ -80,6 +80,7 @@ public class Board {
     }
 
 
+// discover the fit Tile if it valid step
     public int  makeStep (int btnId, boolean isFlagUI){
         int indexY = btnId%cols;
         int indexX = btnId/cols;
@@ -95,7 +96,7 @@ public class Board {
         return checksStatus(indexX,indexY);
 
     }
-
+// discover all the fit Tiles (with no bombs around them) which around the Tile we choose
     public void makeStepAuto (int indexX, int indexY){
         if ((indexX >=0 && indexX<rows && indexY>=0 && indexY<cols) && (allTiles[indexX][indexY].isCover()) ) {
             allTiles[indexX][indexY].setCover(false);
@@ -109,7 +110,7 @@ public class Board {
     }
 
 
-
+    //get the current status of the game (1: win , -1: lose , 0: still play)
     public int checksStatus(int indexX, int indexY) {
         if (allTiles[indexX][indexY].getType() == 10) {
             return -1;
