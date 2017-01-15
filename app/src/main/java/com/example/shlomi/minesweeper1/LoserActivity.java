@@ -56,7 +56,7 @@ public class LoserActivity extends AppCompatActivity {
         TextView loseLbl = new TextView(this);
         loseLbl.setTextSize(48);
         loseLbl.setTextColor(Color.WHITE);
-        loseLbl.setText("You Lose!");
+        loseLbl.setText(R.string.you_lose);
         loseLbl.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         llMain.addView(loseLbl);
 
@@ -65,7 +65,7 @@ public class LoserActivity extends AppCompatActivity {
         llBottom.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         Button replay = new Button(this);
         replay.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        replay.setText("Replay");
+        replay.setText(R.string.replay);
         replay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,7 +75,7 @@ public class LoserActivity extends AppCompatActivity {
 
         final Button menu = new Button(this);
         menu.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        menu.setText("Menu");
+        menu.setText(R.string.menu);
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

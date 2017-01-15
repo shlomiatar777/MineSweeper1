@@ -26,8 +26,14 @@ public class ChooseLevelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_level);
-        final Intent intent = new Intent(this, GameActivity.class);
+        final Intent intentPlay = new Intent(this, GameActivity.class);
+        final Intent intentHighScore = new Intent(this, ShowHighScoreActivity.class);
+        //final Intent intent = new Intent(this, CompassActivity.class);
         final  int scene=1;
+      /*  SharedPreferences sp = getSharedPreferences("all highScore lists",0);
+        sp.edit().remove("easylist").commit();
+        sp.edit().remove("mediumlist").commit();
+        sp.edit().remove("hardlist").commit();*/
 
     //  screen size parameters
         Display display = getWindowManager().getDefaultDisplay();
@@ -43,7 +49,7 @@ public class ChooseLevelActivity extends AppCompatActivity {
         ll.setBackgroundDrawable(image);
 
         TextView title = new TextView(this);
-        title.setText("Mine Sweeper!");
+        title.setText(R.string.app_name);
         title.setTextSize(height/50);
         title.setTextColor(Color.WHITE);
         title.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -54,7 +60,6 @@ public class ChooseLevelActivity extends AppCompatActivity {
         llChooseLvl.setPadding(0,height/6,0,0);
 
         LinearLayout llScores = new LinearLayout(this);
-        makeScoreLayOut(llScores,height/70);
 ;       chooseLevelByGroupBtn(height/70);
         llChooseLvl.addView(rg);
         llChooseLvl.addView(llScores);
@@ -65,7 +70,7 @@ public class ChooseLevelActivity extends AppCompatActivity {
         llPlay.setPadding(0,height/5,0,0);
 
         Button play = new Button(this);
-        play.setText("Play");
+        play.setText(R.string.play);
         play.setTextSize(height/60);
         play.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -88,45 +93,46 @@ public class ChooseLevelActivity extends AppCompatActivity {
                     cols= 5;
                     bombs=10;
                 }
-                intent.putExtra("rows",rows);
-                intent.putExtra("cols" , cols);
-                intent.putExtra("bombsNum", bombs);
-                intent.putExtra("levelName",index);
-                startActivityForResult(intent,scene);
+                intentPlay.putExtra("rows",rows);
+                intentPlay.putExtra("cols" , cols);
+                intentPlay.putExtra("bombsNum", bombs);
+                intentPlay.putExtra("levelName",index);
+                startActivityForResult(intentPlay,scene);
             }
         });
-        play.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
+        play.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
         llPlay.addView(play);
+
+
+        Button highScore = new Button(this);
+        highScore.setText(R.string.HighScore);
+        highScore.setTextSize(height/60);
+        highScore.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+            public void onClick(View v) {
+                int index = rg.indexOfChild(findViewById(rg.getCheckedRadioButtonId()));
+                if (index==0)
+                    intentHighScore.putExtra("level","easy");
+
+                else if (index==1)
+                    intentHighScore.putExtra("level","medium");
+
+                else
+                    intentHighScore.putExtra("level","hard");
+
+                startActivityForResult(intentHighScore,scene);
+            }
+
+
+        });
+        highScore.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+        llPlay.addView(highScore);
 
        ll.addView(llPlay);
     }
 
-    // load best score for each level to a Layout
-    public void makeScoreLayOut(LinearLayout llScores,int size){
 
-        SharedPreferences settings =  getSharedPreferences("allBestScores",0);
-        SharedPreferences.Editor editor = settings.edit();
-        int easyScore = settings.getInt("LevelName "+0,0);
-        int mediumScore =  settings.getInt("LevelName "+1,0);
-        int hardScore =  settings.getInt("LevelName "+2,0);
-
-        llScores.setOrientation(LinearLayout.VERTICAL);
-        TextView easyScoreLbl= new TextView(this);
-        easyScoreLbl.setTextSize(size);
-        easyScoreLbl.setText("      Score: "+ easyScore );
-        easyScoreLbl.setTextColor(Color.WHITE);
-        TextView mediumScoreLbl= new TextView(this);
-        mediumScoreLbl.setTextSize(size);
-        mediumScoreLbl.setText("      Score: "+ mediumScore );
-        mediumScoreLbl.setTextColor(Color.WHITE);
-        TextView hardScoreLbl= new TextView(this);
-        hardScoreLbl.setTextSize(size);
-        hardScoreLbl.setText("      Score: "+ hardScore );
-        hardScoreLbl.setTextColor(Color.WHITE);
-        llScores.addView(easyScoreLbl);
-        llScores.addView(mediumScoreLbl);
-        llScores.addView(hardScoreLbl);
-    }
 
     // make RadioGroup with all levels
      public void chooseLevelByGroupBtn(int size){

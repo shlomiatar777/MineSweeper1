@@ -130,4 +130,32 @@ public class Board {
         return  0;
     }
 
+    public  void addBomb(){
+        boolean isAddBomb = false;
+        while(!isAddBomb && rows*cols-1>bombs){
+
+
+            int randX = (int) (Math.random() * (rows - 1));
+            int randY = (int) (Math.random() * (cols - 1));
+
+            if(allTiles[randX][randY].getType() != 10) {
+                allTiles[randX][randY].setType(10);
+
+                for (int m = randX - 1; m <= randX + 1; m++) {
+                    for (int n = randY - 1; n <= randY + 1; n++) {
+                        if ((m < rows && n < cols) && (m >= 0 && n >= 0)) {
+                            if (allTiles[m][n].getType() != 10)
+                                allTiles[m][n].setType(allTiles[m][n].getType() + 1);
+                                allTiles[m][n].setCover(true);
+                        }
+                    }
+                }
+
+                bombs++;
+               // numOfFlagsLogic+=1;
+                isAddBomb = true;
+            }
+        }
+    }
+
 }

@@ -1,3 +1,21 @@
 <resources>
-    <string name="app_name">Mine Sweeper1</string>
+    <string name="app_name">Mine Sweeper!</string>
+    <string name="play">Play</string>
+    <string name="HighScore">HighScore</string>
+    <string name="bombs">bombs: </string>
+    <string name="timer"> Timer: </string>
+    <string name="flags">Flags</string>
+    <string name="discover">Discover</string>
+    <string name="quit">Quit</string>
+    <string name="return_to_menu">Are you sure you want return to menu?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="you_lose">You Lose!</string>
+    <string name="replay">Replay</string>
+    <string name="menu">Menu</string>
+    <string name="new_score">You win! new Score</string>
+    <string name="you_win">You win!</string>
+
+
+
 </resources>
